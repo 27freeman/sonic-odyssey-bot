@@ -104,9 +104,7 @@ function setupCronJob(
   getNetworkTypeFromUser();
   console.log();
 
-  const method = readlineSync.question(
-    'Select input method (0 for seed phrase, 1 for private key): '
-  );
+  const method = '1';
 
   let seedPhrasesOrKeys;
   if (method === '0') {
@@ -130,9 +128,7 @@ function setupCronJob(
   }
 
   const defaultAddressCount = 100;
-  const addressCountInput = readlineSync.question(
-    `How many random addresses do you want to generate? (default is ${defaultAddressCount}): `
-  );
+  const addressCountInput = 105;
   const addressCount = addressCountInput
     ? parseInt(addressCountInput, 10)
     : defaultAddressCount;
@@ -143,9 +139,7 @@ function setupCronJob(
 
   let amountToSend;
   do {
-    const amountInput = readlineSync.question(
-      'Enter the amount of SOL to send (default is 0.001 SOL): '
-    );
+    const amountInput = 0.001;
     amountToSend = amountInput ? parseFloat(amountInput) : 0.001;
 
     if (isNaN(amountToSend)) {
@@ -154,18 +148,14 @@ function setupCronJob(
   } while (isNaN(amountToSend));
 
   const defaultDelay = 1000;
-  const delayInput = readlineSync.question(
-    `Enter the delay between transactions in milliseconds (default is ${defaultDelay}ms): `
-  );
+  const delayInput = 1000;
   const delayBetweenTx = delayInput ? parseInt(delayInput, 10) : defaultDelay;
 
   if (isNaN(delayBetweenTx) || delayBetweenTx < 0) {
     throw new Error(colors.red('Invalid delay specified'));
   }
 
-  const executionMode = readlineSync.question(
-    'Do you want to run this script one-time or auto every 24 hours? (0 for one-time, 1 for auto): '
-  );
+  const executionMode = '0';
 
   if (executionMode === '0') {
     console.log(colors.yellow('Running one-time transfer...'));
