@@ -168,76 +168,79 @@ async function processPrivateKey(privateKey) {
       console.log(`Available Box(es): ${availableBoxes}`.green);
       console.log('');
 
-      const method = readlineSync.question(
+      /*const method = readlineSync.question(
         'Select input method (1 for claim box, 2 for open box, 3 for daily login): '
-      );
+      );)*/
+      const methods = ['1','2','3'];
 
-      if (method === '1') {
-        console.log(`[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow);
-        await dailyClaim(token);
-        console.log(
-          `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
-        );
-      } else if (method === '2') {
-        let totalClaim;
-        do {
-          totalClaim = readlineSync.question(
-            `How many boxes do you want to open? (Maximum is: ${availableBoxes}): `
-              .blue
+      for ( let method of methods) {
+        
+      
+
+        if (method === '1') {
+          console.log(`[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow);
+          await dailyClaim(token);
+          console.log(
+            `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
           );
+        } else if (method === '2') {
+          let totalClaim;
+          do {
+            totalClaim = availableBoxes;
 
-          if (totalClaim > availableBoxes) {
-            console.log(`You cannot open more boxes than available`.red);
-          } else if (isNaN(totalClaim)) {
-            console.log(`Please enter a valid number`.red);
-          } else {
-            console.log(
-              `[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow
-            );
-
-            for (let i = 0; i < totalClaim; i++) {
-              const openedBox = await openMysteryBox(
-                token,
-                getKeypair(privateKey)
+            if (totalClaim > availableBoxes) {
+              console.log(`You cannot open more boxes than available`.red);
+            } else if (isNaN(totalClaim)) {
+              console.log(`Please enter a valid number`.red);
+            } else {
+              console.log(
+                `[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow
               );
 
-              if (openedBox.data.success) {
-                console.log(
-                  `[ ${moment().format(
-                    'HH:mm:ss'
-                  )} ] Box opened successfully! Status: ${
-                    openedBox.status
-                  } | Amount: ${openedBox.data.amount}`.green
+              for (let i = 0; i < totalClaim; i++) {
+                const openedBox = await openMysteryBox(
+                  token,
+                  getKeypair(privateKey)
                 );
-              }
-            }
 
+                if (openedBox.data.success) {
+                  console.log(
+                    `[ ${moment().format(
+                      'HH:mm:ss'
+                    )} ] Box opened successfully! Status: ${
+                      openedBox.status
+                    } | Amount: ${openedBox.data.amount}`.green
+                  );
+                }
+              }
+
+              console.log(
+                `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
+              );
+            }
+          } while (totalClaim > availableBoxes);
+        } else if (method === '3') {
+          console.log(`[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow);
+
+          const claimLogin = await dailyLogin(token, getKeypair(privateKey));
+
+          if (claimLogin) {
             console.log(
-              `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
+              `[ ${moment().format(
+                'HH:mm:ss'
+              )} ] Daily login has been success! Status: ${
+                claimLogin.status
+              } | Accumulative Days: ${claimLogin.data.accumulative_days}`.green
             );
           }
-        } while (totalClaim > availableBoxes);
-      } else if (method === '3') {
-        console.log(`[ ${moment().format('HH:mm:ss')} ] Please wait...`.yellow);
 
-        const claimLogin = await dailyLogin(token, getKeypair(privateKey));
-
-        if (claimLogin) {
           console.log(
-            `[ ${moment().format(
-              'HH:mm:ss'
-            )} ] Daily login has been success! Status: ${
-              claimLogin.status
-            } | Accumulative Days: ${claimLogin.data.accumulative_days}`.green
+            `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
           );
+        } else {
+          throw new Error('Invalid input method selected'.red);
         }
-
-        console.log(
-          `[ ${moment().format('HH:mm:ss')} ] All tasks completed!`.cyan
-        );
-      } else {
-        throw new Error('Invalid input method selected'.red);
-      }
+      };
     } else {
       console.log(
         `There might be errors if you don't have sufficient balance or the RPC is down. Please ensure your balance is sufficient and your connection is stable`
